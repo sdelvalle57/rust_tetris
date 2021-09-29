@@ -6,6 +6,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::rect::Rect;
 use sdl2::render::{Canvas, Texture, TextureCreator};
 use sdl2::video::{Window, WindowContext};
+use sdl2::image::{self, INIT_JPG, INIT_PNG, LoadTexture};
 use std::time::{Duration, SystemTime};
 use std::thread::sleep;
 
@@ -46,37 +47,40 @@ fn main() {
     let sdl_context = sdl2::init().expect("SDL initialization failed");
     let video_subsystem = sdl_context.video().expect("Couldnt get SDL Video subsytem");
 
+    sdl2::image::init(INIT_JPG | INIT_PNG).expect("Couldnt initialize image context");
     //create window
     let window = video_subsystem.window("Tetris", 800, 600)
         .position_centered()
+        .opengl()
         .build()
         .expect("Failed to create window");
 
     let mut canvas = window.into_canvas()
-        .target_texture()
-        .present_vsync()
         .build()
         .expect("Couldnt get windows canvas");
 
     let texture_creator: TextureCreator<_> = canvas.texture_creator();
+
+    let image_texture = texture_creator.load_texture("assets/company.png")
+        .expect("Couldnt load image");
     
 
-    //we create a texture with a 32x32 size
-    let mut green_square= create_texture_rect(
-        &mut canvas, 
-        &texture_creator, 
-        TextureColor::Green,    
-        TEXTURE_SIZE
-    ).expect("Failed to create texture");
+    // //we create a texture with a 32x32 size
+    // let mut green_square= create_texture_rect(
+    //     &mut canvas, 
+    //     &texture_creator, 
+    //     TextureColor::Green,    
+    //     TEXTURE_SIZE
+    // ).expect("Failed to create texture");
 
-    let mut bluesquare= create_texture_rect(
-        &mut canvas, 
-        &texture_creator, 
-        TextureColor::Blue,    
-        TEXTURE_SIZE
-    ).expect("Failed to create texture");
+    // let mut bluesquare= create_texture_rect(
+    //     &mut canvas, 
+    //     &texture_creator, 
+    //     TextureColor::Blue,    
+    //     TEXTURE_SIZE
+    // ).expect("Failed to create texture");
 
-    let timer = SystemTime::now();
+    // let timer = SystemTime::now();
 
     // First we get the event handler
     let mut event_pump = sdl_context.event_pump().expect("Failed to cget SDL event pump");
@@ -101,24 +105,24 @@ fn main() {
         // we draw it
         canvas.clear();
 
-        //the rectangle switch happens here:
-        let display_green = match timer.elapsed() {
-            Ok(elapsed) => elapsed.as_secs() % 2 == 0,
-            Err(_) => true //In case of error we do nothing
-        };
+        // //the rectangle switch happens here:
+        // let display_green = match timer.elapsed() {
+        //     Ok(elapsed) => elapsed.as_secs() % 2 == 0,
+        //     Err(_) => true //In case of error we do nothing
+        // };
 
-        let square_texture = if display_green {
-            &green_square
-        } else {
-            &bluesquare
-        };
+        // let square_texture = if display_green {
+        //     &green_square
+        // } else {
+        //     &bluesquare
+        // };
 
         // copy our texture into the window
         canvas.copy(
-            &square_texture, 
+            &image_texture, 
             None, 
             //we copy it at the top-left of the window with a 32x32 size
-            Rect::new(0, 0, TEXTURE_SIZE, TEXTURE_SIZE)
+            None
         ).expect("Couldnt copy texture into window");
         //we update windows display
         canvas.present();
@@ -131,4 +135,4 @@ fn main() {
 }
 
 
-//Page 66, Playing with images
+//Page 83, 
